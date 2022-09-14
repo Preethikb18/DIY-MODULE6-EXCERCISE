@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="getAccountsByName" doc:id="f9823c54-97d2-4808-b761-d3cde8a1c310" >
+		<http:listener doc:name="GET /accounts" doc:id="8bc3fe01-7b88-4f77-afd4-ed11542a64e0" path="/accounts" allowedMethods="GET" config-ref="HTTP_Listener_config">
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"size" : vars.size,
+	"account_name" : vars.acname,
+	"user_id" : vars.user_id
+}]]]></http:headers>
+			</http:response>
+		</http:listener>
+		<set-variable value="#[attributes.headers.client_id]" doc:name="client_id" doc:id="e254ab51-63e8-4036-b0c8-812ccbe7f42e" variableName="client_id"/>
+		<set-variable value="#[attributes.headers.client_secret]" doc:name="client_secret" doc:id="0edfd62e-fa0e-4ab8-a519-b1aaca00f375" variableName="client_secret"/>
+		<set-variable value="#[attributes.headers.user_id]" doc:name="user_id" doc:id="4260eebd-68d1-425e-aed5-86b466563947" variableName="user_id"/>
+		<set-variable value="#[attributes.queryParams.account_name]" doc:name="acname" doc:id="b7e17ef7-2291-4a1f-95c4-6531ec58621c" variableName="acname"/>
+		<http:request method="GET" doc:name="Request" doc:id="283b7f76-5422-4631-be4b-426f62a2889b" config-ref="HTTP_Request_configuration" path="/accounts">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_secret" : vars.client_secret,
+	"user_id" : vars.user_id,
+	"client_id" : vars.client_id
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"account_name" : vars.acname
+}]]]></http:query-params>
+		</http:request>
+		<set-variable value="#[sizeOf(payload)]" doc:name="size" doc:id="c697df3c-4d3e-4dc5-aa84-409be5983b4d" variableName="size"/>
+		<logger level="INFO" doc:name="Logger" doc:id="dec1b677-1640-4065-8d7f-7cd6da5c51a7" />
+	</flow>
+	<flow name="getAccountsByType" doc:id="7e17ac1c-44c0-4a7b-98aa-b32218d5c520" >
+		<http:listener doc:name="GET /accounts" doc:id="aad7448f-a4e2-454b-81e3-6c41f7652df9" config-ref="HTTP_Listener_config" path="/accountsbytype" allowedMethods="GET" >
+			<http:response >
+				<http:headers ><![CDATA[#[output application/java
+---
+{
+	"size" : vars.size,
+	"user_id" : vars.user_id,
+	"account_typr" : vars.actype
+}]]]></http:headers>
+			</http:response>
+		</http:listener>
+		<set-variable value="#[attributes.headers.client_id]" doc:name="client_id" doc:id="d35dbc4a-9f99-4e02-a7ed-cf4d3e04e311" variableName="client_id" />
+		<set-variable value="#[attributes.headers.client_secret]" doc:name="client_secret" doc:id="992e232b-ca2d-4125-9a04-f4a1d7872c42" variableName="client_secret" />
+		<set-variable value="#[attributes.headers.user_id]" doc:name="user_id" doc:id="9a647e77-ac1e-4df0-afdb-124296376e28" variableName="user_id" />
+		<set-variable value="#[attributes.queryParams.account_type]" doc:name="actype" doc:id="b5beeed0-c3b8-4537-bb9f-3868b8db397e" variableName="actype" />
+		<http:request method="GET" doc:name="Request" doc:id="5c8263d3-0be7-4dab-8816-9376c1585a77" config-ref="HTTP_Request_configuration" path="/accounts" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"client_secret" : vars.client_secret,
+	"user_id" : vars.user_id,
+	"client_id" : vars.client_id
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"account_type" : vars.actype
+}]]]></http:query-params>
+		</http:request>
+		<set-variable value="#[sizeOf(payload)]" doc:name="size" doc:id="4e9249c4-bc10-48d6-8e88-e5b4a496ce92" variableName="size" />
+		<logger level="INFO" doc:name="Logger" doc:id="ca3c2268-6757-49e6-85c6-e9ce2c38e160" />
+	</flow>
+</mule>
